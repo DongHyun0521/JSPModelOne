@@ -1,4 +1,4 @@
-// JSPModelOne - com.pro.dao.db - DBClose.java
+// JSPModelOne - com.mbc.pro.db - DBClose.java
 package com.mbc.pro.db;
 
 import java.sql.Connection;
@@ -9,12 +9,12 @@ import java.sql.SQLException;
 public class DBClose {
 	public static void close(PreparedStatement psmt, Connection conn, ResultSet rs) {
 		try {
+			if (rs != null)
+				rs.close();
 			if (psmt != null)
 				psmt.close();
 			if (conn != null)
 				conn.close();
-			if (rs != null)
-				rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

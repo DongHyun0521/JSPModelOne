@@ -1,0 +1,29 @@
+DROP TABLE IF EXISTS bbs;
+DROP SEQUENCE IF EXISTS seq_bbs;
+
+CREATE SEQUENCE seq_bbs
+	INCREMENT BY 1
+	START WITH 1;
+
+CREATE TABLE bbs (
+	seq INTEGER DEFAULT NEXTVAL('seq_bbs') PRIMARY KEY,
+	id VARCHAR(50) NOT NULL,
+	
+	ref INTEGER NOT NULL,	-- 답글
+	step INTEGER NOT NULL,
+	depth INTEGER NOT NULL,
+	
+	title VARCHAR(200) NOT NULL,
+	content VARCHAR(4000) NOT NULL,
+	wdate TIMESTAMP,
+	parent INTEGER NOT NULL,	-- parent_seq
+	
+	del INTEGER NOT NULL,	-- 삭제된 글(1,2,...)인지 아닌지(0) 확인
+	readcount NUMERIC(8) NOT NULL
+);
+
+ALTER TABLE bbs
+	ADD CONSTRAINT fk_bbs_id FOREIGN KEY(id)
+	REFERENCES member(id);
+
+SELECT * FROM bbs;

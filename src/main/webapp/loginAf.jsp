@@ -4,8 +4,8 @@
     pageEncoding="UTF-8"%>
 <%
 	// JSPModelOne - loginAf.jsp
-	String id = request.getParameter("id").trim();
-	String pw = request.getParameter("pw").trim();
+	String id = request.getParameter("id");
+	String pw = request.getParameter("pw");
 	
 	MemberDao dao = MemberDao.getInstance();
 	MemberDto mem = dao.login(id, pw);
@@ -16,7 +16,7 @@
 		
 		%><script type="text/javascript">
 		alert("<%=mem.getId() %>님 환영합니다");
-		//location.href = "";
+		location.href = "bbsList.jsp";
 		</script><%
 		} else {
 		%><script type="text/javascript">

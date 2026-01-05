@@ -1,4 +1,4 @@
-// JSPModelOne - com.pro.dto - MemberDto.java
+// JSPModelOne - com.mbc.pro.dto - MemberDto.java
 package com.mbc.pro.dto;
 
 import java.io.Serializable;

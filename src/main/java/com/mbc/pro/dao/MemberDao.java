@@ -1,4 +1,4 @@
-// JSPModelOne - com.pro.dao - MemberDao.java
+// JSPModelOne - com.mbc.pro.dao - MemberDao.java
 package com.mbc.pro.dao;
 
 import java.sql.Connection;
@@ -23,7 +23,7 @@ public class MemberDao {
 	}
 	
 	// 아이디 중복 확인
-	public int idcheck (String id) {
+	public int idcheck(String id) {
 		String sql = "SELECT COUNT(*) FROM member WHERE id = ?;";
 		Connection conn = null;
 		PreparedStatement psmt = null;
@@ -32,20 +32,21 @@ public class MemberDao {
 		
 		try {
 			conn = DBConnection.getConnection();
-			System.out.println("아이디 중복 확인 1/3");
+			System.out.println("아이디 중복 확인 1/4 (MemberDao: idcheck)");
 			
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, id);
-			System.out.println("아이디 중복 확인 2/3");
+			System.out.println("아이디 중복 확인 2/4 (MemberDao: idcheck)");
 			
 			rs = psmt.executeQuery();
+			System.out.println("아이디 중복 확인 3/4 (MemberDao: idcheck)");
 			if (rs.next()) {
 				count = rs.getInt(1);
 			}
-			System.out.println("아이디 중복 확인 3/3");
+			System.out.println("아이디 중복 확인 4/4 (MemberDao: idcheck)");
 			
 		} catch (Exception  e) {
-			System.out.println("아이디 중복 확인 실패");
+			System.out.println("아이디 중복 확인 실패 (MemberDao: idcheck)");
 			e.printStackTrace();
 		} finally {
 			DBClose.close(psmt, conn, rs);
@@ -54,7 +55,7 @@ public class MemberDao {
 	}
 	
 	// 회원가입
-	public int addMember (MemberDto dto) {
+	public int addMember(MemberDto dto) {
 		String sql = "INSERT INTO member "
 				+ "(id, pw, name, email, auth) "
 				+ "VALUES (?, ?, ?, ?, 3);";
@@ -65,20 +66,20 @@ public class MemberDao {
 		
 		try {
 			conn = DBConnection.getConnection();
-			System.out.println("회원가입 1/3");
+			System.out.println("회원가입 1/3 (MemberDao: addMember)");
 			
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, dto.getId());
 			psmt.setString(2, dto.getPw());
 			psmt.setString(3, dto.getName());
 			psmt.setString(4, dto.getEmail());
-			System.out.println("회원가입 2/3");
+			System.out.println("회원가입 2/3 (MemberDao: addMember)");
 			
 			count = psmt.executeUpdate();
-			System.out.println("회원가입 3/3");
+			System.out.println("회원가입 3/3 (MemberDao: addMember)");
 			
 		} catch (Exception  e) {
-			System.out.println("회원가입 실패");
+			System.out.println("회원가입 실패 (MemberDao: addMember)");
 			e.printStackTrace();
 		} finally {
 			DBClose.close(psmt, conn, rs);
@@ -87,7 +88,7 @@ public class MemberDao {
 	}
 	
 	// 로그인
-	public MemberDto login (String id, String pw) {
+	public MemberDto login(String id, String pw) {
 		String sql = "SELECT id, name, email, auth "
 				+ "FROM member "
 				+ "WHERE id = ? AND pw = ?;";
@@ -98,14 +99,15 @@ public class MemberDao {
 		
 		try {
 			conn = DBConnection.getConnection();
-			System.out.println("로그인 1/3");
+			System.out.println("로그인 1/4 (MemberDao: login)");
 			
 			psmt = conn.prepareStatement(sql);
 			psmt.setString(1, id);
 			psmt.setString(2, pw);
-			System.out.println("로그인 2/3");
+			System.out.println("로그인 2/4 (MemberDao: login)");
 			
 			rs = psmt.executeQuery();
+			System.out.println("로그인 3/4 (MemberDao: login)");
 			if (rs.next()) {
 				String _id = rs.getString("id");
 				String _name = rs.getString("name");
@@ -114,10 +116,10 @@ public class MemberDao {
 				
 				dto = new MemberDto(_id, "", _name, _email, _auth);
 			}
-			System.out.println("로그인 3/3");
-		}
-		catch (Exception  e) {
-			System.out.println("로그인 실패");
+			System.out.println("로그인 4/4 (MemberDao: login)");
+			
+		} catch (Exception  e) {
+			System.out.println("로그인 실패 (MemberDao: login)");
 			e.printStackTrace();
 		} finally {
 			DBClose.close(psmt, conn, rs);

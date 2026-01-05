@@ -30,7 +30,7 @@
 			</tr>
 			<tr>
 				<th>비밀번호</th>
-				<td><input type="password" id="pw" name="pw" size="20"><br/>
+				<td><input type="password" id="pw" name="pw" size="20"></td><br/>
 			</tr>
 			<tr>
 				<td colspan="2" align="center">

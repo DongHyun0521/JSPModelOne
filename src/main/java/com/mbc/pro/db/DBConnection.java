@@ -1,4 +1,4 @@
-// JSPModelOne - com.pro.dao.db - DBConnection.java
+// JSPModelOne - com.mbc.pro.db - DBConnection.java
 package com.mbc.pro.db;
 
 import java.sql.Connection;
