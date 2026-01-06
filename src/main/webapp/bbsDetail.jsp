@@ -1,3 +1,4 @@
+<%@page import="com.mbc.pro.dto.MemberDto"%>
 <%@page import="com.mbc.pro.dto.BbsDto"%>
 <%@page import="com.mbc.pro.dao.BbsDao"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
@@ -9,8 +10,12 @@
 	BbsDto dto = new BbsDto();
 	
 	dto.setSeq(seq);
-	dao.addReadcount(dto);
 	dto = dao.bbsDetail(dto);
+	
+	if (dto.getDel() == 0) {
+		dao.addReadcount(dto);
+		dto = dao.bbsDetail(dto);
+	}
 %>
 <!DOCTYPE html>
 <html>
@@ -25,6 +30,12 @@
 	</style>
 </head>
 <body>
+	<%if (dto.getDel() == 1) {
+		%><script type="text/javascript">
+			alert("- 삭제된 글입니다 -");
+			location.href = "bbsList.jsp";
+		</script><%
+	} else {%>
 	<div align="center">
 		<h2>글 상세</h2>
 		<table>
@@ -48,8 +59,23 @@
 		</table>
 		
 		<button type="button" onclick="location.href='bbsList.jsp'">글 목록</button>
-		<button type="button" onclick="location.href='bbsWrite.jsp'">글 수정</button>
-		<button type="button" onclick="location.href='bbsDelete.jsp'">글 삭제</button>
+		<%
+			MemberDto mem = (MemberDto)session.getAttribute("login");
+			
+			if (mem.getId().equals(dto.getId())) {%>
+			<button type="button" onclick="bbsUpdate(<%=dto.getSeq()%>)">글 수정</button>
+			<button type="button" onclick="bbsDelete(<%=dto.getSeq()%>)">글 삭제</button>
+		<%}%>
 	</div>
+	<%}%>
+	
+	<script type="text/javascript">
+		function bbsUpdate(seq) {
+			location.href="bbsUpdate.jsp?seq=" + seq;
+		}
+		function bbsDelete(seq) {
+			location.href="bbsDeleteAf.jsp?seq=" + seq;
+		}
+	</script>
 </body>
 </html>

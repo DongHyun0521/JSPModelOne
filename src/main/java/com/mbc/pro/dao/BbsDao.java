@@ -74,28 +74,71 @@ public class BbsDao {
 		return list;
 	}
 	
+	// 글의 총 개수
+	public int getAllBbs(String category, String keyword) {
+		String sql = "SELECT COUNT(*) FROM bbs";
+		
+		if (category.equals("title")) {
+			sql+= " WHERE title LIKE '%" + keyword + "%' ";
+		}
+		else if (category.equals("content")) {
+			sql+= " WHERE content LIKE '%" + keyword + "%' ";
+		}
+		else if (category.equals("writer")) {
+			sql+= " WHERE id = '" + keyword + "' ";
+		}
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		ResultSet rs = null;
+		int count = 0;
+		
+		try {
+			conn = DBConnection.getConnection();
+			System.out.println("글의 총 개수 1/4 (BbsDao: getAllBbs)");
+			
+			psmt = conn.prepareStatement(sql);
+			System.out.println("글의 총 개수 2/4 (BbsDao: getAllBbs)");
+			
+			rs = psmt.executeQuery();
+			System.out.println("글의 총 개수 3/4 (BbsDao: getAllBbs)");
+			
+			if (rs.next())
+				count = rs.getInt(1);
+			System.out.println("글의 총 개수 4/4 (BbsDao: getAllBbs)");
+			
+		} catch (SQLException e) {
+			System.out.println("글의 총 개수 실패 (BbsDao: getAllBbs)");
+			e.printStackTrace();
+		} finally {
+			DBClose.close(psmt, conn, null);
+		}
+		return count;
+	}
+	
 	// 글 작성
 	public int bbsWrite(BbsDto dto) {
 		String sql = "INSERT INTO bbs (id, ref, step, depth, "
-				+ "title, content, wdate, parent, del, readcount) "
-				+ "VALUES (?, (SELECT COALESCE(MAX(ref), 0) + 1 FROM bbs), 0, 0, "
-				+ "?, ?, now(), 0, 0, 0);";
+				+ " title, content, wdate, parent, del, readcount) "
+				+ " VALUES (?, (SELECT COALESCE(MAX(ref), 0) + 1 FROM bbs), 0, 0, "
+				+ " ?, ?, now(), 0, 0, 0)";
 		Connection conn = null;
 		PreparedStatement psmt = null;
 		int count = 0;
 		
 		try {
 			conn = DBConnection.getConnection();
-			System.out.println("글 작성 1/3 (BbsDao: bbsWrite)");
+			System.out.println("글 작성 1/4 (BbsDao: bbsWrite)");
 			
 			psmt = conn.prepareStatement(sql);
+			System.out.println("글 작성 2/4 (BbsDao: bbsWrite)");
+			
 			psmt.setString(1, dto.getId());
 			psmt.setString(2, dto.getTitle());
 			psmt.setString(3, dto.getContent());
-			System.out.println("글 작성 2/3 (BbsDao: bbsWrite)");
+			System.out.println("글 작성 3/4 (BbsDao: bbsWrite)");
 			
 			count = psmt.executeUpdate();
-			System.out.println("글 작성 3/3 (BbsDao: bbsWrite)");
+			System.out.println("글 작성 4/4 (BbsDao: bbsWrite)");
 			
 		} catch (Exception  e) {
 			System.out.println("글 작성 실패 (BbsDao: bbsWrite)");
@@ -104,6 +147,69 @@ public class BbsDao {
 			DBClose.close(psmt, conn, null);
 		}
 		return count;
+	}
+	
+	// 글 검색
+	public List<BbsDto> getBbsSearchPagingList(String category, String keyword, int pageNumber) {
+		String sql = "SELECT seq, id, ref, step, depth, "
+				+ " title, content, wdate, parent, "
+				+ " del, readcount "
+				+ " FROM bbs ";
+		if (category.equals("title")) {
+			sql+= " WHERE title LIKE '%" + keyword + "%' ";
+		}
+		else if (category.equals("content")) {
+			sql+= " WHERE content LIKE '%" + keyword + "%' ";
+		}
+		else if (category.equals("writer")) {
+			sql+= " WHERE id = '" + keyword + "' ";
+		}
+		sql+= " ORDER BY ref DESC, step ASC ";
+		sql+= " LIMIT 10 OFFSET " + (pageNumber * 10);	// 한 페이지에 글 10개씩
+		
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		ResultSet rs = null;
+		List<BbsDto> list = new ArrayList<BbsDto>();
+		
+		try {
+			conn = DBConnection.getConnection();
+			System.out.println("글 검색 1/4 (BbsDao: getBbsSearchList)");
+			
+			psmt = conn.prepareStatement(sql);
+			System.out.println("글 검색 2/4 (BbsDao: getBbsSearchList)");
+			
+			rs = psmt.executeQuery();
+			System.out.println("글 검색 3/4 (BbsDao: getBbsSearchList)");
+			
+			while(rs.next()) {
+				int seq = rs.getInt("seq");
+				String id = rs.getString("id");
+				
+				int ref = rs.getInt("ref");
+				int step = rs.getInt("step");
+				int depth = rs.getInt("depth");
+				
+				String title = rs.getString("title");
+				String content = rs.getString("content");
+				String wdate = rs.getString("wdate");
+				int parent = rs.getInt("parent");
+				
+				int del = rs.getInt("del");
+				int readcount = rs.getInt("readcount");
+				
+				BbsDto dto = new BbsDto(seq, id, ref, step, depth, title, content, wdate, parent, del, readcount);
+				list.add(dto);
+			}
+			System.out.println("글 검색 4/4 (BbsDao: getBbsSearchList)");
+			
+		} catch (SQLException e) {
+			System.out.println("글 검색 실패 (BbsDao: getBbsSearchList)");
+			e.printStackTrace();
+		} finally {
+			DBClose.close(psmt, conn, rs);
+		}
+		return list;
 	}
 	
 	// 글 상세
@@ -168,11 +274,13 @@ public class BbsDao {
 			System.out.println("조회수+1 1/3 (BbsDao: addReadcount)");
 			
 			psmt = conn.prepareStatement(sql);
+			System.out.println("조회수+1 2/4 (BbsDao: addReadcount)");
+			
 			psmt.setInt(1, dto.getSeq());
-			System.out.println("조회수+1 2/3 (BbsDao: addReadcount)");
+			System.out.println("조회수+1 3/4 (BbsDao: addReadcount)");
 			
 			readcount = psmt.executeUpdate();
-			System.out.println("조회수+1 3/3 (BbsDao: addReadcount)");
+			System.out.println("조회수+1 4/4 (BbsDao: addReadcount)");
 			
 		} catch (Exception  e) {
 			System.out.println("조회수+1 실패 (BbsDao: addReadcount)");
@@ -181,5 +289,131 @@ public class BbsDao {
 			DBClose.close(psmt, conn, null);
 		}
 		return readcount;
+	}
+	
+	// 글 검색
+	public List<BbsDto> getBbsSearchList(String category, String keyword) {
+		String sql = "SELECT seq, id, ref, step, depth, "
+				+ " title, content, wdate, parent, "
+				+ " del, readcount "
+				+ " FROM bbs ";
+		if (category.equals("title")) {
+			sql+= " WHERE title LIKE '%" + keyword + "%' ";
+		}
+		else if (category.equals("content")) {
+			sql+= " WHERE content LIKE '%" + keyword + "%' ";
+		}
+		else if (category.equals("writer")) {
+			sql+= " WHERE id = '" + keyword + "' ";
+		}
+		sql+= " ORDER BY ref DESC, step ASC;";
+		
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		ResultSet rs = null;
+		List<BbsDto> list = new ArrayList<BbsDto>();
+		
+		try {
+			conn = DBConnection.getConnection();
+			System.out.println("글 검색 1/4 (BbsDao: getBbsSearchList)");
+			
+			psmt = conn.prepareStatement(sql);
+			System.out.println("글 검색 2/4 (BbsDao: getBbsSearchList)");
+			
+			rs = psmt.executeQuery();
+			System.out.println("글 검색 3/4 (BbsDao: getBbsSearchList)");
+			
+			while(rs.next()) {
+				int seq = rs.getInt("seq");
+				String id = rs.getString("id");
+				
+				int ref = rs.getInt("ref");
+				int step = rs.getInt("step");
+				int depth = rs.getInt("depth");
+				
+				String title = rs.getString("title");
+				String content = rs.getString("content");
+				String wdate = rs.getString("wdate");
+				int parent = rs.getInt("parent");
+				
+				int del = rs.getInt("del");
+				int readcount = rs.getInt("readcount");
+				
+				BbsDto dto = new BbsDto(seq, id, ref, step, depth, title, content, wdate, parent, del, readcount);
+				list.add(dto);
+			}
+			System.out.println("글 검색 4/4 (BbsDao: getBbsSearchList)");
+			
+		} catch (SQLException e) {
+			System.out.println("글 검색 실패 (BbsDao: getBbsSearchList)");
+			e.printStackTrace();
+		} finally {
+			DBClose.close(psmt, conn, rs);
+		}
+		return list;
+	}
+	
+	// 글 수정
+	public int bbsUpdate(BbsDto dto) {
+		String sql = "UPDATE bbs SET title = ?, content = ? "
+				+ " WHERE seq = ? AND id = ?";
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		int count = 0;
+		
+		try {
+			conn = DBConnection.getConnection();
+			System.out.println("글 수정 1/4 (BbsDao: bbsUpdate)");
+			
+			psmt = conn.prepareStatement(sql);
+			System.out.println("글 수정 2/4 (BbsDao: bbsUpdate)");
+			
+			psmt.setString(1, dto.getTitle());
+			psmt.setString(2, dto.getContent());
+			psmt.setInt(3, dto.getSeq());
+			psmt.setString(4, dto.getId());
+			System.out.println("글 수정 3/4 (BbsDao: bbsUpdate)");
+			
+			count = psmt.executeUpdate();
+			System.out.println("글 수정 4/4 (BbsDao: bbsUpdate)");
+			
+		} catch (Exception  e) {
+			System.out.println("글 수정 실패 (BbsDao: bbsUpdate)");
+			e.printStackTrace();
+		} finally {
+			DBClose.close(psmt, conn, null);
+		}
+		return count;
+	}
+	
+	// 글 삭제
+	public int bbsDelete(BbsDto dto) {
+		String sql = "UPDATE bbs SET del = 1 "
+				+ " WHERE seq = ? AND id = ?";
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		int count = 0;
+		
+		try {
+			conn = DBConnection.getConnection();
+			System.out.println("글 삭제 1/4 (BbsDao: bbsWrite)");
+			
+			psmt = conn.prepareStatement(sql);
+			System.out.println("글 삭제 2/4 (BbsDao: bbsWrite)");
+			
+			psmt.setInt(1, dto.getSeq());
+			psmt.setString(2, dto.getId());
+			System.out.println("글 삭제 3/4 (BbsDao: bbsWrite)");
+			
+			count = psmt.executeUpdate();
+			System.out.println("글 삭제 4/4 (BbsDao: bbsWrite)");
+			
+		} catch (Exception  e) {
+			System.out.println("글 삭제 실패 (BbsDao: bbsWrite)");
+			e.printStackTrace();
+		} finally {
+			DBClose.close(psmt, conn, null);
+		}
+		return count;
 	}
 }
