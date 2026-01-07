@@ -28,6 +28,19 @@
 	if ((count % 10) > 0)
 		pageBbs += 1;
 %>
+<%!
+	// 화살표
+	public String arrow(int depth) {
+		String rs = "<img src='./images/arrow.png' width='20px' height='20px'/>";
+		String nbsp = "&nbsp;&nbsp;&nbsp;&nbsp;";
+		String ts = "";
+		
+		for (int i=0; i<depth; i++) {
+			ts += nbsp;
+		}
+		return depth == 0 ? "" : ts+rs;
+	}
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -75,6 +88,8 @@
 						<tr>
 							<td><%=bbs.getSeq()%></td>
 							<td style="text-align:left;">
+								<%=arrow(bbs.getDepth())%>
+								
 								<a href="bbsDetail.jsp?seq=<%=bbs.getSeq()%>"><%=bbs.getTitle()%></a>
 							</td>
 							<td><%=bbs.getReadcount()%></td>

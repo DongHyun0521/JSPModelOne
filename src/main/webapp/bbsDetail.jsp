@@ -58,6 +58,8 @@
 			</tr>
 		</table>
 		
+		<button type="button" onclick="answer(<%=dto.getSeq()%>)">답글</button>
+		
 		<button type="button" onclick="location.href='bbsList.jsp'">글 목록</button>
 		<%
 			MemberDto mem = (MemberDto)session.getAttribute("login");
@@ -75,6 +77,9 @@
 		}
 		function bbsDelete(seq) {
 			location.href="bbsDeleteAf.jsp?seq=" + seq;
+		}
+		function answer(seq) {
+			location.href="answer.jsp?seq=" + seq;
 		}
 	</script>
 </body>

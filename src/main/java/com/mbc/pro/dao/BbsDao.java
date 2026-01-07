@@ -416,4 +416,74 @@ public class BbsDao {
 		}
 		return count;
 	}
+	
+	// 답글 작성
+	public int answer(int seq, BbsDto bbs) {
+		String sqlUpdate = "UPDATE bbs "
+				+ " SET step = step + 1 "
+				+ " WHERE ref = (SELECT ref FROM bbs WHERE seq = ?) "
+				+ " AND step > (SELECT step FROM bbs WHERE seq = ?) ";
+		
+		String sqlInsert = "INSERT INTO bbs (id, ref, step, depth, "
+				+ " title, content, wdate, parent, del, readcount) "
+				+ " VALUES (?, (SELECT ref FROM bbs WHERE seq = ?), "
+				+ " (SELECT step FROM bbs WHERE seq = ?) + 1, "
+				+ " (SELECT depth FROM bbs WHERE seq = ?) + 1, "
+				+ " ?, ?, now(), ?, 0, 0) ";
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		int count = 0;
+		
+		try {
+			conn = DBConnection.getConnection();
+			conn.setAutoCommit(false);
+			
+			psmt = conn.prepareStatement(sqlUpdate);
+			System.out.println("답글 작성 1/7 (BbsDao: answer)");
+			
+			psmt.setInt(1, seq);
+			psmt.setInt(2, seq);
+			System.out.println("답글 작성 2/7 (BbsDao: answer)");
+			
+			count = psmt.executeUpdate();
+			System.out.println("답글 작성 3/7 (BbsDao: answer)");
+			
+			psmt.clearParameters();	// 초기화
+			System.out.println("답글 작성 4/7 (BbsDao: answer)");
+			
+			psmt = conn.prepareStatement(sqlInsert);
+			System.out.println("답글 작성 5/7 (BbsDao: answer)");
+			
+			psmt.setString(1, bbs.getId());
+			psmt.setInt(2, seq);
+			psmt.setInt(3, seq);
+			psmt.setInt(4, seq);
+			psmt.setString(5, bbs.getTitle());
+			psmt.setString(6, bbs.getContent());
+			psmt.setInt(7, seq);
+			System.out.println("답글 작성 6/7 (BbsDao: answer)");
+			
+			count = psmt.executeUpdate();
+			System.out.println("답글 작성 7/7 (BbsDao: answer)");
+			
+		} catch (Exception  e) {
+			System.out.println("답글 작성 실패 (BbsDao: answer)");
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				System.out.println("답글 작성 롤백 실패 (BbsDao: answer)");
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.setAutoCommit(true);
+			} catch (SQLException e) {
+				System.out.println("답글 작성 오토커밋On 실패 (BbsDao: answer)");
+				e.printStackTrace();
+			}
+			DBClose.close(psmt, conn, null);
+		}
+		return count;
+	}
 }
