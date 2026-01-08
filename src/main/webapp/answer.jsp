@@ -4,12 +4,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%
-	int seq = Integer.parseInt(request.getParameter("seq"));
-	
-	BbsDto dto = new BbsDto();
-	dto.setSeq(seq);
-	
-	dto = BbsDao.getInstance().bbsDetail(dto);
+	BbsDto dto = (BbsDto)request.getAttribute("dto");
+	if (dto == null) {
+	    response.sendRedirect("./bbs?param=bbsList");
+	    return;
+	}
 %>
 <!DOCTYPE html>
 <html>
@@ -43,12 +42,17 @@
 				</th>
 			</tr>
 		</table>
-		<h2>답글</h2>
+		<h2>= 답글 =</h2>
 		<%
 			MemberDto mem = (MemberDto)session.getAttribute("login");
+			if (mem == null) {
+				response.sendRedirect("./member?param=login");
+				return;
+			}
 		%>
-		<form action="answerAf.jsp" method="post">
-			<input type="hidden" name="seq" value="<%=dto.getSeq()%>"/>
+		<form action="./bbs" method="post">
+			<input type="hidden" name="param" value="answerAf">
+			<input type="hidden" name="seq" value="<%=dto.getSeq()%>">
 			<table border="1">
 			<col width="200px"/><col width="400px"/>
 			<tr>

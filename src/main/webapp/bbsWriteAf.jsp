@@ -19,22 +19,15 @@
 	BbsDao dao = BbsDao.getInstance();
 	int count = dao.bbsWrite(new BbsDto(id, title, content));
 	
-	//if (!_id.trim().equals(id)) {%>
-		<!-- script>
-			alert("- 로그인 아이디와 작성자 일치 필요 -");
-			location.href = "bbsWrite.jsp";
-		</script -->
-	<%//} else {
-		if (count > 0) {%>
-		<script>
-			alert("- 글 작성 완료 -");
-			location.href = "bbsList.jsp";
-		</script>
-		<%} else {%>
-		<script>
-			alert("- 글 작성 실패 -");
-			location.href = "bbsWrite.jsp";
-		</script>
-		<%}
-	//}
+	if (count > 0) {%>
+	<script>
+		alert("- 글 작성 완료 -");
+		location.href = "bbsList.jsp";
+	</script>
+	<%} else {%>
+	<script>
+		alert("- 글 작성 실패 -");
+		location.href = "bbsWrite.jsp";
+	</script>
+	<%}
 %>
